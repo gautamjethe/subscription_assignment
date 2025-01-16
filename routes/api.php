@@ -6,6 +6,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RatingController;
 
 Route::fallback(function () {
     return response()->json([
@@ -17,14 +19,26 @@ Route::apiResource('customers', CustomerController::class);
 Route::apiResource('products', ProductController::class);
 
 
-Route::post('/orders', [OrderController::class, 'placeOrder'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::put('/orders/{order_id}', [OrderController::class, 'modifyOrder'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::delete('/orders/{order_id}', [OrderController::class, 'cancelOrder'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::get('/customers/{customer_id}/total', [OrderController::class, 'calculateTotal'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
+Route::post('/orders', [OrderController::class, 'placeOrder']);
+Route::put('/orders/{order_id}', [OrderController::class, 'modifyOrder']);
+Route::delete('/orders/{order_id}', [OrderController::class, 'cancelOrder']);
+Route::get('/customers/{customer_id}/total', [OrderController::class, 'calculateTotal']);
 
 //Subscription Routes
 
-Route::post('/subscriptions', [SubscriptionController::class, 'create'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::put('/subscriptions/{subscription_id}', [SubscriptionController::class, 'update'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::delete('/subscriptions/{subscription_id}', [SubscriptionController::class, 'cancel'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
-Route::get('/subscriptions/{customer_id}', [SubscriptionController::class, 'viewSubscriptions'])->middleware(App\Http\Middleware\FiftyPercentMiddleware::class);
+Route::post('/subscriptions', [SubscriptionController::class, 'create']);
+Route::put('/subscriptions/{subscription_id}', [SubscriptionController::class, 'update']);
+Route::delete('/subscriptions/{subscription_id}', [SubscriptionController::class, 'cancel']);
+Route::get('/subscriptions/{customer_id}', [SubscriptionController::class, 'viewSubscriptions']);
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/products/{productId}/rate', [RatingController::class, 'rateProduct']); 
+    Route::put('/products/{productId}/rating', [RatingController::class, 'updateRating']); 
+    Route::get('/products/{productId}/rating', [RatingController::class, 'getProductRating']);
+
+});
